@@ -6,5 +6,5 @@ Future<void> initilizeHiveAdapters() async {
   await Hive.initFlutter();
   Hive.registerAdapter(PhotosModelAdapter());
 
-  photosModelBox = await Hive.openBox<PhotosModel>('ZineModelAdapterBox');
+  photosModelBox = await Hive.openBox<PhotosModel>('PhotosModel');
 }

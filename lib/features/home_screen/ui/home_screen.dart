@@ -22,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    log('done calling');
+    context.read<PhotosBloc>().add(const PhotosRequestedEvent());
     super.initState();
   }
 
@@ -41,31 +41,65 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: AppPallete.gradient2,
               ),
             );
-          } else if (state.photosState is StatusInitial) {
+          } else if (state.photosState is StatusSuccess) {
             final widthFraction =
-                (MediaQuery.of(context).size.width - 10) * 0.5;
+                (MediaQuery.of(context).size.width - 20) * 0.5;
             return ListView.separated(
+              padding: const EdgeInsets.all(5),
               separatorBuilder: (context, index) {
                 return const SizedBox(
-                  height: 20,
+                  height: 10,
                 );
               },
-              itemCount: 20,
+              itemCount: state.photos.length,
               itemBuilder: (context, index) {
-                return Row(
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      color: Colors.red,
-                      width: widthFraction,
-                      height: widthFraction * 16 / 9,
+                    Text(
+                      state.photos[index].date,
+                      style: const TextStyle(
+                        fontSize: 16,
+                      ),
                     ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Container(
-                      color: Colors.blue,
-                      width: widthFraction,
-                      height: widthFraction * 16 / 9,
+                    Row(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.grey,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          width: widthFraction,
+                          height: widthFraction * 16 / 9,
+                          child: state.photos[index].frontPic != ''
+                              ? Image.file(
+                                  File(state.photos[index].frontPic),
+                                )
+                              : const Center(child: Text('Front Facing Image')),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.grey,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          width: widthFraction,
+                          height: widthFraction * 16 / 9,
+                          child: state.photos[index].sidePic != ''
+                              ? Image.file(
+                                  File(state.photos[index].sidePic),
+                                )
+                              : const Center(
+                                  child: Text('Side Facing Image'),
+                                ),
+                        ),
+                      ],
                     ),
                   ],
                 );
@@ -127,6 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       photoType: selectedSide ?? 'front',
                                     ),
                                   );
+                              Navigator.of(context).pop();
                             },
                             icon: const Icon(
                               Icons.camera,
@@ -150,6 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       photoType: selectedSide ?? 'front',
                                     ),
                                   );
+                              Navigator.of(context).pop();
                             },
                             icon: const Icon(
                               Icons.upload,
