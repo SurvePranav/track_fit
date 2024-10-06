@@ -9,6 +9,7 @@ import 'package:track_fit/core/common/file_operation_methods.dart';
 import 'package:track_fit/core/domain/status.dart';
 import 'package:track_fit/core/theme/app_palette.dart';
 import 'package:track_fit/features/home_screen/bloc/photos_bloc.dart';
+import 'package:track_fit/features/home_screen/ui/widgets/image_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -42,68 +43,39 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             );
           } else if (state.photosState is StatusSuccess) {
+            final photos = state.photos.reversed.toList();
             final widthFraction =
-                (MediaQuery.of(context).size.width - 20) * 0.5;
-            return ListView.separated(
-              padding: const EdgeInsets.all(5),
-              separatorBuilder: (context, index) {
-                return const SizedBox(
-                  height: 10,
-                );
-              },
-              itemCount: state.photos.length,
-              itemBuilder: (context, index) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      state.photos[index].date,
-                      style: const TextStyle(
-                        fontSize: 16,
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Colors.grey,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          width: widthFraction,
-                          height: widthFraction * 16 / 9,
-                          child: state.photos[index].frontPic != ''
-                              ? Image.file(
-                                  File(state.photos[index].frontPic),
-                                )
-                              : const Center(child: Text('Front Facing Image')),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Colors.grey,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          width: widthFraction,
-                          height: widthFraction * 16 / 9,
-                          child: state.photos[index].sidePic != ''
-                              ? Image.file(
-                                  File(state.photos[index].sidePic),
-                                )
-                              : const Center(
-                                  child: Text('Side Facing Image'),
-                                ),
-                        ),
-                      ],
-                    ),
-                  ],
-                );
-              },
+                (MediaQuery.of(context).size.width - 26) * 0.5;
+            // return ListView.separated(
+            //   padding: const EdgeInsets.all(5),
+            //   separatorBuilder: (context, index) {
+            //     return const SizedBox(
+            //       height: 10,
+            //     );
+            //   },
+            //   itemCount: photos.length,
+            //   itemBuilder: (context, index) {
+            //     return ImageWidget(
+            //       photo: photos[index],
+            //       width: widthFraction,
+            //       height: widthFraction * 16 / 9,
+            //     );
+            //   },
+            // );
+
+            return SingleChildScrollView(
+              child: Column(
+                  children: List.generate(
+                photos.length,
+                (index) => Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ImageWidget(
+                    photo: photos[index],
+                    width: widthFraction,
+                    height: widthFraction * 16 / 9,
+                  ),
+                ),
+              )),
             );
           } else if (state.photosState is StatusFailure) {
             return const Center(

@@ -1,7 +1,12 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:bloc/bloc.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:path/path.dart';
 import 'package:track_fit/core/domain/status.dart';
 import 'package:track_fit/core/hive/adapters/photos_adapter.dart';
 import 'package:track_fit/core/hive/boxes.dart';
@@ -49,7 +54,7 @@ class PhotosBloc extends Bloc<PhotosEvent, PhotosState> {
         }
         final photoModel = PhotosModel(
           id: id.toString(),
-          date: DateTime.now().toString(),
+          date: DateFormat('yyyy-MM-dd').format(DateTime.now()),
           frontPic: event.photoType == 'front' ? path : '',
           sidePic: event.photoType == 'front' ? '' : path,
         );
