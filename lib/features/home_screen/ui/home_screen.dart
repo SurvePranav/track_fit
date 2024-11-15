@@ -109,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         width: 20,
                       ),
                       Radio(
-                        value: 'back',
+                        value: 'side',
                         groupValue: selectedSide,
                         onChanged: (value) {
                           setState(() {

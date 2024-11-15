@@ -22,6 +22,19 @@ class PhotosModel {
 
   @HiveField(3)
   String sidePic;
+  PhotosModel copyWith({
+    String? id,
+    String? date,
+    String? frontPic,
+    String? sidePic,
+  }) {
+    return PhotosModel(
+      id: id ?? this.id,
+      date: date ?? this.date,
+      frontPic: frontPic ?? this.date,
+      sidePic: sidePic ?? this.sidePic,
+    );
+  }
 }
 
 // @HiveType(typeId: 1) // Ensure this typeId is unique
