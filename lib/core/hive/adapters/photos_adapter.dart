@@ -4,7 +4,7 @@ part 'photos_adapter.g.dart'; // This file will be generated
 
 @HiveType(typeId: 0) // Use a unique typeId for each class
 class PhotosModel {
-  PhotosModel({
+  const PhotosModel({
     required this.id,
     required this.date,
     required this.frontPic,
@@ -12,16 +12,37 @@ class PhotosModel {
   });
 
   @HiveField(0)
-  String id;
+  final String id;
 
   @HiveField(1)
-  String date;
+  final String date;
 
   @HiveField(2)
-  String frontPic;
+  final String frontPic;
 
   @HiveField(3)
-  String sidePic;
+  final String sidePic;
+
+  PhotosModel copyWith({
+    String? id,
+    String? date,
+    String? frontPic,
+    String? sidePic,
+  }) {
+    return PhotosModel(
+      id: id ?? this.id,
+      date: date ?? this.date,
+      frontPic: frontPic ?? this.frontPic,
+      sidePic: sidePic ?? this.sidePic,
+    );
+  }
+
+  static const PhotosModel empty = PhotosModel(
+    id: '',
+    date: '',
+    frontPic: '',
+    sidePic: '',
+  );
 }
 
 // @HiveType(typeId: 1) // Ensure this typeId is unique

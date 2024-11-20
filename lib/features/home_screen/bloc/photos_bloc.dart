@@ -1,12 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
-import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:bloc/bloc.dart';
-import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:path/path.dart';
 import 'package:track_fit/core/domain/status.dart';
 import 'package:track_fit/core/hive/adapters/photos_adapter.dart';
 import 'package:track_fit/core/hive/boxes.dart';
@@ -26,11 +21,35 @@ class PhotosBloc extends Bloc<PhotosEvent, PhotosState> {
 
   FutureOr<void> _onPhotosRequestedEvent(
       PhotosRequestedEvent event, Emitter<PhotosState> emit) {
+    final photos = List.generate(
+        photosModelBox.length, (index) => photosModelBox.getAt(index)!);
+
+    // sorting photos according to date
+    photos.sort((a, b) {
+      DateTime dateA = DateTime.parse(a.date);
+      DateTime dateB = DateTime.parse(b.date);
+      // Sort in descending order (latest date first)
+      return dateB.compareTo(dateA);
+    });
+
     emit(
       state.copyWith(
-        photos: List.generate(
-            photosModelBox.length, (index) => photosModelBox.getAt(index)!),
+        photos: photos,
         photosState: Status.success(),
+        todayPhoto: event.todayPhoto ??
+            photos.firstWhere(
+              (e) =>
+                  DateFormat('yyyy-MM-dd').format(DateTime.parse(e.date)) ==
+                  DateFormat('yyyy-MM-dd').format(
+                    DateTime.now(),
+                  ),
+              orElse: () => PhotosModel(
+                id: photos.length.toString(),
+                date: DateTime.now().toString(),
+                frontPic: '',
+                sidePic: '',
+              ),
+            ),
       ),
     );
   }
@@ -38,31 +57,51 @@ class PhotosBloc extends Bloc<PhotosEvent, PhotosState> {
   Future<void> _onPhotoAddedEvent(
       PhotoAddedEvent event, Emitter<PhotosState> emit) async {
     try {
-      // try to save in gallary
-      final path = await photosRepo.takeAndSavePhoto(
-        event.source,
-        event.photoType == 'front' ? 'Front Face' : 'Side Face',
-      );
+      String? path;
+      if (event.photoType == 'front') {
+        // saving front image
+        path = await photosRepo.takeAndSavePhoto(
+          event.source,
+          event.photoType,
+        );
+
+        // checking if the previously taken image is there if present deleting it
+        if (state.todayPhoto.frontPic != '' && path != null) {
+          await photosRepo.deleteImage(state.todayPhoto.frontPic);
+        }
+      } else {
+        // saving side image
+        path = await photosRepo.takeAndSavePhoto(
+          event.source,
+          event.photoType,
+        );
+        // checking if the previously taken image is there if present deleting it
+        if (state.todayPhoto.sidePic != '' && path != null) {
+          await photosRepo.deleteImage(state.todayPhoto.sidePic);
+        }
+      }
 
       if (path != null) {
         // saving in hive
-        final int id;
-        if (state.photos.isNotEmpty) {
-          id = int.parse(state.photos.last.id) + 1;
-        } else {
-          id = 0;
-        }
-        final photoModel = PhotosModel(
-          id: id.toString(),
-          date: DateFormat('yyyy-MM-dd').format(DateTime.now()),
-          frontPic: event.photoType == 'front' ? path : '',
-          sidePic: event.photoType == 'front' ? '' : path,
+        photosModelBox.put(
+          // id
+          state.todayPhoto.id,
+          // photo
+          state.todayPhoto.copyWith(
+            frontPic: event.photoType == 'front' ? path : null,
+            sidePic: event.photoType == 'side' ? path : null,
+          ),
         );
 
-        photosModelBox.put(id, photoModel);
-
         // changing state
-        add(const PhotosRequestedEvent());
+        add(
+          PhotosRequestedEvent(
+            todayPhoto: state.todayPhoto.copyWith(
+              frontPic: event.photoType == 'front' ? path : null,
+              sidePic: event.photoType == 'side' ? path : null,
+            ),
+          ),
+        );
       }
     } catch (e) {
       log(e.toString());

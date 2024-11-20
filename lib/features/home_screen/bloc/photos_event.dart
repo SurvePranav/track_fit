@@ -5,7 +5,10 @@ sealed class PhotosEvent {
 }
 
 final class PhotosRequestedEvent extends PhotosEvent {
-  const PhotosRequestedEvent();
+  const PhotosRequestedEvent({
+    this.todayPhoto,
+  });
+  final PhotosModel? todayPhoto;
 }
 
 final class PhotoAddedEvent extends PhotosEvent {

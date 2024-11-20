@@ -27,6 +27,21 @@ class PhotosRepo {
     return null;
   }
 
+  Future<void> deleteImage(String filePath) async {
+    final file = File(filePath);
+
+    try {
+      if (await file.exists()) {
+        await file.delete();
+        log('File deleted successfully: $filePath');
+      } else {
+        log('File not found: $filePath');
+      }
+    } catch (e) {
+      log('Error deleting file: $e');
+    }
+  }
+
   // Function to take a photo and save it in the custom folder
   Future<String?> takeAndSavePhoto(String source, String folderName) async {
     final picker = ImagePicker();
