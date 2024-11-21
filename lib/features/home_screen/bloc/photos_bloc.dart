@@ -84,7 +84,7 @@ class PhotosBloc extends Bloc<PhotosEvent, PhotosState> {
       if (path != null) {
         // saving in hive
         photosModelBox.put(
-          // id
+          // id (unique)
           state.todayPhoto.id,
           // photo
           state.todayPhoto.copyWith(
